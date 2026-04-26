@@ -8,7 +8,7 @@ import {
 import { prisma } from "../../../lib/prisma.js";
 import type { SendMessageBody } from "./baileys.types.js";
 import { toWhatsAppJid } from "../anti-ban/anti-ban.utils.js";
-import { enqueueMessage, getQueueLength } from "../anti-ban/anti-band.queue.js";
+import { enqueueMessage, getQueueLength } from "../anti-ban/anti-ban.queue.js";
 
 // ── helper: pastikan session milik user ───────────────────────────────────
 async function getOwnedSession(sessionId: string, userId: string) {
