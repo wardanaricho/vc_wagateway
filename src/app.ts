@@ -4,6 +4,7 @@ import express, {
   type Request,
   type Response,
 } from "express";
+
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { waSessionRouter } from "./modules/wa-session/wa-session.route.js";
 import { apiKeyRouter } from "./modules/api-key/api-key.routes.js";
