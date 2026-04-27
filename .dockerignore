@@ -1,0 +1,5 @@
+.git
+*.log
+baileys-test-auth/
+test-baileys.ts
+.env

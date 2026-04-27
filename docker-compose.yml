@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./lib:/app/lib
+    restart: unless-stopped
+    extra_hosts:
+      - "host.containers.internal:host-gateway"

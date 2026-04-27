@@ -9,7 +9,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "make:module": "tsx scripts/make-module.ts"
+    "make:module": "tsx scripts/make-module.ts",
+    "docker:up": "podman-compose up -d",
+    "docker:down": "podman-compose down",
+    "docker:logs": "podman-compose logs -f app",
+    "docker:migrate": "podman-compose exec app npx prisma migrate deploy"
   },
   "keywords": [],
   "author": "",

@@ -5,12 +5,11 @@ import { DEFAULT_ANTI_BAN_CONFIG } from "./anti-ban.config.js";
 
 interface QueueItem {
   jid: string;
-  message: string;
+  payload: any; // ✅ ganti dari message: string
   resolve: (messageId: string | undefined) => void;
   reject: (err: Error) => void;
 }
 
-// antrian per session
 const queues = new Map<string, QueueItem[]>();
 const processing = new Map<string, boolean>();
 
@@ -22,7 +21,6 @@ function getQueue(sessionId: string): QueueItem[] {
 }
 
 async function processQueue(sessionId: string, sock: WASocket): Promise<void> {
-  // sudah sedang diproses
   if (processing.get(sessionId)) return;
   processing.set(sessionId, true);
 
@@ -33,7 +31,6 @@ async function processQueue(sessionId: string, sock: WASocket): Promise<void> {
     const item = queue.shift();
     if (!item) break;
 
-    // cek limit per jam dan per hari
     const { hour, day } = getCount(sessionId);
 
     if (hour >= config.maxMessagesPerHour) {
@@ -55,14 +52,14 @@ async function processQueue(sessionId: string, sock: WASocket): Promise<void> {
     }
 
     try {
-      const result = await sock.sendMessage(item.jid, { text: item.message });
+      // ✅ kirim payload langsung, bukan { text: message }
+      const result = await sock.sendMessage(item.jid, item.payload);
       incrementCounter(sessionId);
       item.resolve(result?.key.id ?? undefined);
     } catch (err) {
       item.reject(err instanceof Error ? err : new Error(String(err)));
     }
 
-    // delay random sebelum pesan berikutnya
     if (queue.length > 0) {
       await randomDelay(config.minDelayMs, config.maxDelayMs);
     }
@@ -73,25 +70,23 @@ async function processQueue(sessionId: string, sock: WASocket): Promise<void> {
 
 /**
  * Tambahkan pesan ke antrian session.
- * Return messageId setelah pesan berhasil dikirim.
+ * Payload bisa berupa semua tipe Baileys: text, image, video, dll.
  */
 export function enqueueMessage(
   sessionId: string,
   sock: WASocket,
   jid: string,
-  message: string,
+  payload: any, // ✅ ganti dari message: string
 ): Promise<string | undefined> {
   const config = DEFAULT_ANTI_BAN_CONFIG;
   const queue = getQueue(sessionId);
 
-  // cek ukuran antrian
   if (queue.length >= config.maxBurstMessages * 10) {
     return Promise.reject(new Error("Antrian pesan penuh, coba lagi nanti"));
   }
 
   return new Promise((resolve, reject) => {
-    queue.push({ jid, message, resolve, reject });
-    // trigger processing (tidak perlu await)
+    queue.push({ jid, payload, resolve, reject }); // ✅ ganti message → payload
     processQueue(sessionId, sock).catch(console.error);
   });
 }
